@@ -1,0 +1,652 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.33.1" theme-name="Stellar" theme-version="1.33.1"><meta name="generator" content="Hexo 7.3.0"><meta http-equiv="x-dns-prefetch-control" content="on"><meta name="renderer" content="webkit"><meta name="force-rendering" content="webkit"><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><meta name="HandheldFriendly" content="True"><meta name="mobile-web-app-capable" content="yes"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000"><meta name="theme-color" content="#f9fafb"><title>Python 鼠标宏（按键精灵） - Malvern's Blog</title><meta name="description" content="以按键精灵为灵感，写了一个带 GUI 的鼠标宏。第三方库用到了 Pillow 和 pyautogui，分别提供了获取鼠标位置 RGB 颜色和模拟键鼠操作功能。GUI 当前通过 Python 内置的 tkinter 库实现，后续可能会用别的（可以支持拖动控件的）。   添加判断功能暂未写好，后续会在本文更新。  主要功能         添加动作            添加判断"><meta property="og:type" content="article"><meta property="og:title" content="Python 鼠标宏（按键精灵）"><meta property="og:url" content="https://20508888.xyz/posts/60829/"><meta property="og:site_name" content="Malvern&#39;s Blog"><meta property="og:description" content="以按键精灵为灵感，写了一个带 GUI 的鼠标宏。第三方库用到了 Pillow 和 pyautogui，分别提供了获取鼠标位置 RGB 颜色和模拟键鼠操作功能。GUI 当前通过 Python 内置的 tkinter 库实现，后续可能会用别的（可以支持拖动控件的）。   添加判断功能暂未写好，后续会在本文更新。  主要功能         添加动作            添加判断"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://bu.dusays.com/2024/11/17/67399c5bce84f.png"><meta property="article:published_time" content="2025-12-14T09:00:00.000Z"><meta property="article:modified_time" content="2025-12-14T09:00:00.000Z"><meta property="article:author" content="Malvern"><meta property="article:tag" content="原创"><meta property="article:tag" content="编程"><meta property="article:tag" content="计算机"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://bu.dusays.com/2024/11/17/67399c5bce84f.png"><meta name="keywords" content="原创,编程,计算机"><link rel="alternate" href="/atom.xml" title="Malvern's Blog" type="application/atom+xml"><link rel="stylesheet" href="/css/main.css?v=1.33.1"><link rel="shortcut icon" href="https://bu.dusays.com/2024/11/17/67399c5bce84f.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Malvern","sameAs":[],"image":"https://bu.dusays.com/2024/11/17/67399c5bce84f.png"},"dateCreated":"2025-12-14T17:00:00+08:00","dateModified":"2025-12-14T17:00:00+08:00","datePublished":"2025-12-14T17:00:00+08:00","description":"","headline":"Python 鼠标宏（按键精灵）","mainEntityOfPage":{"@type":"WebPage","@id":"https://20508888.xyz/posts/60829/"},"publisher":{"@type":"Organization","name":"Malvern","sameAs":[],"image":"https://bu.dusays.com/2024/11/17/67399c5bce84f.png","logo":{"@type":"ImageObject","url":"https://bu.dusays.com/2024/11/17/67399c5bce84f.png"}},"url":"https://20508888.xyz/posts/60829/","keywords":"原创, 编程, 计算机","image":[]}</script></head><body><div class="l_body content" id="start" layout="post" type="tech" text-indent><aside class="l_left"><div class="sidebg"></div><div class="leftbar-container"><header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://bu.dusays.com/2024/11/17/67399c6fd659d.png)"></div><img no-lazy class="avatar" src="https://bu.dusays.com/2024/11/17/67399c5bce84f.png" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main">Malvern's Blog</div><div class="sub normal cap">I am my own gift ✌️</div><div class="sub hover cap" style="opacity:0">我就是我自己的礼物 🧌</div></a></div></header><div class="nav-area"><nav class="menu dis-select"></nav></div><div class="widgets"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div><widget class="widget-wrapper markdown"><div class="widget-header dis-select"><span class="name">欢迎来到我的博客 🎉</span></div><div class="widget-body fs14"><ul><li>在此分享一些我的所见所闻，也会有收录一些我觉得有价值的雄文。</li><li>本站托管于<a target="_blank" rel="noopener" href="https://github.com/MalvernLove/MalvernLove.github.io">GitHub</a>，可能国内加载较慢，还望见谅。</li><li>如果发现文章内容有误，请致信📮<a href="mailto:&#x6d;&#97;&#108;&#118;&#101;&#114;&#x6e;&#64;&#56;&#x38;&#x2e;&#99;&#111;&#x6d;">&#x6d;&#97;&#108;&#118;&#101;&#114;&#x6e;&#64;&#56;&#x38;&#x2e;&#99;&#111;&#x6d;</a>。</li></ul></div></widget><widget class="widget-wrapper recent post-list"><div class="widget-header dis-select"><span class="name">最近更新</span><a class="cap-action" id="rss" title="Subscribe" href="/atom.xml"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M5 21q-.825 0-1.412-.587T3 19q0-.825.588-1.412T5 17q.825 0 1.413.588T7 19q0 .825-.587 1.413T5 21m13.5 0q-.65 0-1.088-.475T16.9 19.4q-.275-2.425-1.312-4.537T12.9 11.1q-1.65-1.65-3.762-2.687T4.6 7.1q-.65-.075-1.125-.512T3 5.5q0-.65.45-1.062t1.075-.363q3.075.275 5.763 1.563t4.737 3.337q2.05 2.05 3.338 4.738t1.562 5.762q.05.625-.363 1.075T18.5 21m-6 0q-.625 0-1.075-.437T10.85 19.5q-.225-1.225-.787-2.262T8.65 15.35q-.85-.85-1.888-1.412T4.5 13.15q-.625-.125-1.062-.575T3 11.5q0-.65.45-1.075t1.075-.325q1.825.25 3.413 1.063t2.837 2.062q1.25 1.25 2.063 2.838t1.062 3.412q.1.625-.325 1.075T12.5 21"/></svg></a></div><div class="widget-body fs14"><a class="item title" href="/posts/56014/"><span class="title">🔥 本人简历｜My Resume</span></a><a class="item title" href="/posts/36802/"><span class="title">服务器简报推送脚本（自用分享）</span></a><a class="item title" href="/posts/15094/"><span class="title">一个人的旅行 —— 冲绳・河口湖（富士山）・东京</span></a><a class="item title" href="/posts/17775/"><span class="title">音波式皮带张力计（Web 版）</span></a><a class="item title" href="/posts/60829/"><span class="title">Python 鼠标宏（按键精灵）</span></a><a class="item title" href="/posts/64672/"><span class="title">Excel 汇率速查（可联网更新）</span></a><a class="item title" href="/posts/27177/"><span class="title">我的旅行计划</span></a><a class="item title" href="/posts/59073/"><span class="title">一个人的旅行 —— 台湾</span></a><a class="item title" href="/posts/23916/"><span class="title">一个人的旅游 —— 再游澳门和香港</span></a><a class="item title" href="/posts/41770/"><span class="title">也许是传统网上冲浪者的自白</span></a><a class="item title" href="/posts/53703/"><span class="title">从零开始写数控系统 0.8：圆弧插补（下）</span></a></div></widget></div></div></aside><div class="l_main" id="main"><div class="article banner top"><div class="content"><div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a> <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E7%BC%96%E7%A8%8B/">编程</a></div><div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2025-12-14T09:00:00.000Z">2025-12-14</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2025-12-14T09:00:00.000Z">2025-12-14</time></span></div></div></div><div class="bottom only-title"><div class="text-area"><h1 class="text title"><span>Python 鼠标宏（按键精灵）</span></h1></div></div></div></div><article class="md-text content"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><div class="tag-plugin colorful note"><div class="body"><p>以按键精灵为灵感，写了一个带 GUI 的鼠标宏。第三方库用到了 Pillow 和 pyautogui，分别提供了获取鼠标位置 RGB 颜色和模拟键鼠操作功能。GUI 当前通过 Python 内置的 tkinter 库实现，后续可能会用别的（可以支持拖动控件的）。</p></div></div><blockquote><p><em>添加判断功能暂未写好，后续会在本文更新。</em></p></blockquote><h2 id="主要功能"><a href="#主要功能" class="headerlink" title="主要功能"></a>主要功能</h2><div class="tag-plugin grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))"><div class="cell"><div class="tag-plugin grid" style="grid-template-columns:repeat(2,1fr)"><div class="cell"><p><a class="tag-plugin colorful hashtag" color="red" href="http://20508888.xyz/posts/60829/#添加动作"><svg t="1701408144765" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4228" width="200" height="200"><path d="M426.6 64.8c34.8 5.8 58.4 38.8 52.6 73.6l-19.6 117.6h190.2l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6s58.4 38.8 52.6 73.6l-19.4 117.6H896c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-42.6 256H832c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.6-117.4h-190.4l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.4-117.8H128c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l42.6-256H192c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6z m11.6 319.2l-42.6 256h190.2l42.6-256h-190.2z" p-id="4229"></path></svg><span>添加动作</span></a></p></div><div class="cell"><p><a class="tag-plugin colorful hashtag" color="orange" href="http://20508888.xyz/posts/60829/#添加判断"><svg t="1701408144765" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4228" width="200" height="200"><path d="M426.6 64.8c34.8 5.8 58.4 38.8 52.6 73.6l-19.6 117.6h190.2l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6s58.4 38.8 52.6 73.6l-19.4 117.6H896c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-42.6 256H832c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.6-117.4h-190.4l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.4-117.8H128c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l42.6-256H192c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6z m11.6 319.2l-42.6 256h190.2l42.6-256h-190.2z" p-id="4229"></path></svg><span>添加判断</span></a></p></div><div class="cell"><p><a class="tag-plugin colorful hashtag" color="yellow" href="http://20508888.xyz/posts/60829/#循环次数"><svg t="1701408144765" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4228" width="200" height="200"><path d="M426.6 64.8c34.8 5.8 58.4 38.8 52.6 73.6l-19.6 117.6h190.2l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6s58.4 38.8 52.6 73.6l-19.4 117.6H896c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-42.6 256H832c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.6-117.4h-190.4l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.4-117.8H128c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l42.6-256H192c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6z m11.6 319.2l-42.6 256h190.2l42.6-256h-190.2z" p-id="4229"></path></svg><span>循环次数</span></a></p></div><div class="cell"><p><a class="tag-plugin colorful hashtag" color="green" href="http://20508888.xyz/posts/60829/#log"><svg t="1701408144765" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4228" width="200" height="200"><path d="M426.6 64.8c34.8 5.8 58.4 38.8 52.6 73.6l-19.6 117.6h190.2l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6s58.4 38.8 52.6 73.6l-19.4 117.6H896c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-42.6 256H832c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.6-117.4h-190.4l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.4-117.8H128c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l42.6-256H192c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6z m11.6 319.2l-42.6 256h190.2l42.6-256h-190.2z" p-id="4229"></path></svg><span>log</span></a></p></div><div class="cell"><p><a class="tag-plugin colorful hashtag" color="cyan" href="http://20508888.xyz/posts/60829/#开始"><svg t="1701408144765" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4228" width="200" height="200"><path d="M426.6 64.8c34.8 5.8 58.4 38.8 52.6 73.6l-19.6 117.6h190.2l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6s58.4 38.8 52.6 73.6l-19.4 117.6H896c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-42.6 256H832c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.6-117.4h-190.4l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.4-117.8H128c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l42.6-256H192c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6z m11.6 319.2l-42.6 256h190.2l42.6-256h-190.2z" p-id="4229"></path></svg><span>开始</span></a></p></div><div class="cell"><p><a class="tag-plugin colorful hashtag" color="blue" href="http://20508888.xyz/posts/60829/#导入"><svg t="1701408144765" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4228" width="200" height="200"><path d="M426.6 64.8c34.8 5.8 58.4 38.8 52.6 73.6l-19.6 117.6h190.2l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6s58.4 38.8 52.6 73.6l-19.4 117.6H896c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-42.6 256H832c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.6-117.4h-190.4l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.4-117.8H128c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l42.6-256H192c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6z m11.6 319.2l-42.6 256h190.2l42.6-256h-190.2z" p-id="4229"></path></svg><span>导入</span></a></p></div><div class="cell"><p><a class="tag-plugin colorful hashtag" color="purple" href="http://20508888.xyz/posts/60829/#导出"><svg t="1701408144765" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4228" width="200" height="200"><path d="M426.6 64.8c34.8 5.8 58.4 38.8 52.6 73.6l-19.6 117.6h190.2l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6s58.4 38.8 52.6 73.6l-19.4 117.6H896c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-42.6 256H832c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.6-117.4h-190.4l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.4-117.8H128c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l42.6-256H192c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6z m11.6 319.2l-42.6 256h190.2l42.6-256h-190.2z" p-id="4229"></path></svg><span>导出</span></a></p></div><div class="cell"><p><a class="tag-plugin colorful hashtag" color="red" href="http://20508888.xyz/posts/60829/#鼠标位置"><svg t="1701408144765" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4228" width="200" height="200"><path d="M426.6 64.8c34.8 5.8 58.4 38.8 52.6 73.6l-19.6 117.6h190.2l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6s58.4 38.8 52.6 73.6l-19.4 117.6H896c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-42.6 256H832c35.4 0 64 28.6 64 64s-28.6 64-64 64h-137.8l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.6-117.4h-190.4l-23 138.6c-5.8 34.8-38.8 58.4-73.6 52.6s-58.4-38.8-52.6-73.6l19.4-117.8H128c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l42.6-256H192c-35.4 0-64-28.6-64-64s28.6-64 64-64h137.8l23-138.6c5.8-34.8 38.8-58.4 73.6-52.6z m11.6 319.2l-42.6 256h190.2l42.6-256h-190.2z" p-id="4229"></path></svg><span>鼠标位置</span></a></p></div></div></div><div class="cell"><div class="tag-plugin image"><div class="image-bg" style="aspect-ratio:559/456"><img class="lazy" src="https://bu.dusays.com/2025/12/14/693e5bd1a6723.png" data-src="https://bu.dusays.com/2025/12/14/693e5bd1a6723.png" alt="主界面" data-fancybox="true" onerror="this.src=&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2rem' height='2rem' viewBox='0 0 24 24'%3E%3C!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ --%3E%3Cpath fill='%23F44336' d='M22 12.698c-.002 1.47-.013 2.718-.096 3.743c-.097 1.19-.296 2.184-.74 3.009a4.2 4.2 0 0 1-.73.983c-.833.833-1.893 1.21-3.237 1.39C15.884 22 14.2 22 12.053 22h-.106c-2.148 0-3.83 0-5.144-.177c-1.343-.18-2.404-.557-3.236-1.39c-.738-.738-1.12-1.656-1.322-2.795c-.2-1.12-.236-2.512-.243-4.241Q1.999 12.737 2 12v-.054c0-2.148 0-3.83.177-5.144c.18-1.343.557-2.404 1.39-3.236s1.893-1.21 3.236-1.39c1.168-.157 2.67-.175 4.499-.177a.697.697 0 1 1 0 1.396c-1.855.002-3.234.018-4.313.163c-1.189.16-1.906.464-2.436.994S3.72 5.8 3.56 6.99C3.397 8.2 3.395 9.788 3.395 12v.784l.932-.814a2.14 2.14 0 0 1 2.922.097l3.99 3.99a1.86 1.86 0 0 0 2.385.207l.278-.195a2.79 2.79 0 0 1 3.471.209l2.633 2.37c.265-.557.423-1.288.507-2.32c.079-.972.09-2.152.091-3.63a.698.698 0 0 1 1.396 0' opacity='.5'/%3E%3Cpath fill='%23F44336' fill-rule='evenodd' d='M17.5 11c-2.121 0-3.182 0-3.841-.659S13 8.621 13 6.5s0-3.182.659-3.841S15.379 2 17.5 2s3.182 0 3.841.659S22 4.379 22 6.5s0 3.182-.659 3.841S19.621 11 17.5 11m-1.47-7.03a.75.75 0 1 0-1.06 1.06l1.47 1.47l-1.47 1.47a.75.75 0 0 0 1.06 1.06l1.47-1.47l1.47 1.47a.75.75 0 1 0 1.06-1.06L18.56 6.5l1.47-1.47a.75.75 0 0 0-1.06-1.06L17.5 5.44z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;"><div class="lazy-icon" style="background-image:url(https://api.iconify.design/eos-icons:three-dots-loading.svg?color=%231cd0fd)"></div></div><div class="image-meta"><span class="image-caption center">主界面</span></div></div></div></div><h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><h3 id="主界面"><a href="#主界面" class="headerlink" title="主界面"></a>主界面</h3><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pyautogui</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> ImageGrab</span><br><span class="line"><span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">import</span> tkinter.ttk</span><br><span class="line"><span class="keyword">from</span> tkinter <span class="keyword">import</span> messagebox</span><br><span class="line"><span class="keyword">import</span> tkinter.filedialog <span class="keyword">as</span> filedialog</span><br><span class="line"><span class="keyword">import</span> ctypes</span><br><span class="line"><span class="keyword">import</span> pathlib</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="comment"># 现在时间</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">now</span>():</span><br><span class="line">    <span class="keyword">return</span> datetime.datetime.now().strftime(<span class="string">'%Y-%m-%d %H:%M:%S.%f'</span>)[:-<span class="number">3</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># GUI</span></span><br><span class="line">root = tkinter.Tk()</span><br><span class="line"><span class="comment"># 调用api设置成由应用程序缩放</span></span><br><span class="line">ctypes.windll.shcore.SetProcessDpiAwareness(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># 调用api获得当前的缩放因子</span></span><br><span class="line">ScaleFactor = ctypes.windll.shcore.GetScaleFactorForDevice(<span class="number">0</span>)</span><br><span class="line"><span class="comment"># 设置缩放因子</span></span><br><span class="line">root.tk.call(<span class="string">"tk"</span>, <span class="string">"scaling"</span>, ScaleFactor / <span class="number">75</span>)</span><br><span class="line"><span class="comment"># 窗体置顶</span></span><br><span class="line">root.attributes(<span class="string">"-topmost"</span>, <span class="literal">True</span>)</span><br><span class="line">root.title(<span class="string">"鼠标宏 v0.1"</span>)</span><br><span class="line">k = ScaleFactor / <span class="number">100</span></span><br><span class="line">w, h = <span class="built_in">int</span>(<span class="number">267.5</span> * k), <span class="built_in">int</span>(<span class="number">115</span> * k)</span><br><span class="line">root.geometry(<span class="string">f"<span class="subst">{w}</span>x<span class="subst">{h}</span>"</span>)</span><br><span class="line">root.minsize(w, h)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 功能区</span></span><br><span class="line">mainland = tkinter.ttk.LabelFrame(root, text=<span class="string">"主要功能区"</span>, height=<span class="number">100</span>, width=<span class="number">200</span>)</span><br><span class="line">mainland.grid(column=<span class="number">0</span>, row=<span class="number">0</span>, sticky=tkinter.W)</span><br><span class="line"></span><br><span class="line">readme = tkinter.ttk.Label(root,text=<span class="string">f"运行中停止：快速将鼠标移至屏幕1的左上角\n*log路径：\\\\桌面\\PyMM_<span class="subst">{now()}</span>.log"</span>)</span><br><span class="line">readme.grid(column=<span class="number">0</span>, row=<span class="number">1</span>, columnspan=<span class="number">2</span>, sticky=tkinter.W)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 鼠标位置</span></span><br><span class="line">mouse = tkinter.ttk.LabelFrame(root, text=<span class="string">"当前鼠标位置"</span>, height=<span class="number">100</span>, width=<span class="number">300</span>)</span><br><span class="line">mouse.grid(column=<span class="number">1</span>, row=<span class="number">0</span>, sticky=tkinter.NW)</span><br><span class="line"></span><br><span class="line">root.mainloop()</span><br></pre></td></tr></tbody></table></figure><h3 id="添加动作"><a href="#添加动作" class="headerlink" title="添加动作"></a>添加动作</h3><details class="tag-plugin colorful folding" child="codeblock"><summary><p>点击后在下方出现 Frame，内含动作前后延迟和动作目标位置。</p></summary><div class="body"><details class="tag-plugin colorful folding" child="codeblock"><summary><p>动作类</p></summary><div class="body"><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 动作类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Action</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, frame</span>):</span><br><span class="line">        <span class="variable language_">self</span>.frame = frame</span><br><span class="line">        <span class="variable language_">self</span>.name = <span class="variable language_">self</span>.frame.cget(<span class="string">"text"</span>)</span><br><span class="line">        <span class="variable language_">self</span>.no = <span class="variable language_">self</span>.name[<span class="number">2</span>:]</span><br><span class="line">        <span class="variable language_">self</span>._bind_entries()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_bind_entries</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 收集frame下所有entry 按grid排序</span></span><br><span class="line">        entries = []</span><br><span class="line">        <span class="keyword">for</span> w <span class="keyword">in</span> <span class="variable language_">self</span>.frame.winfo_children():</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">isinstance</span>(w, (tkinter.ttk.Entry, tkinter.ttk.Entry)):</span><br><span class="line">                info = w.grid_info()</span><br><span class="line">                entries.append((info[<span class="string">"row"</span>], info[<span class="string">"column"</span>], w))</span><br><span class="line"></span><br><span class="line">        entries.sort(key=<span class="keyword">lambda</span> x: (x[<span class="number">0</span>], x[<span class="number">1</span>]))</span><br><span class="line">        entries = [w <span class="keyword">for</span> _, _, w <span class="keyword">in</span> entries]</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.move_before = entries[<span class="number">0</span>].get()</span><br><span class="line">        <span class="variable language_">self</span>.x_move = entries[<span class="number">1</span>].get()</span><br><span class="line">        <span class="variable language_">self</span>.y_move = entries[<span class="number">2</span>].get()</span><br><span class="line">        <span class="variable language_">self</span>.move_after = entries[<span class="number">3</span>].get()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 统一获取</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__repr__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f"N<span class="subst">{self.no}</span> B<span class="subst">{self.move_before}</span> X<span class="subst">{self.x_move}</span> Y<span class="subst">{self.y_move}</span> A<span class="subst">{self.move_after}</span>"</span></span><br></pre></td></tr></tbody></table></figure></div></details><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">next_row = <span class="number">1</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add_act</span>():</span><br><span class="line">    <span class="keyword">global</span> next_row</span><br><span class="line"></span><br><span class="line">    frame_act = tkinter.ttk.LabelFrame(root, text=<span class="string">f"动作<span class="subst">{next_row}</span>"</span>, height=<span class="number">240</span>, width=<span class="number">300</span>)</span><br><span class="line"></span><br><span class="line">    frame_act.grid(column=(next_row - <span class="number">1</span>) // <span class="number">8</span>,row=(next_row - <span class="number">1</span>) % <span class="number">8</span> + <span class="number">2</span>,columnspan=<span class="number">1</span>,sticky=tkinter.W)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 用于记录该Frame内的所有Entry</span></span><br><span class="line">    frame_act.entries = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_entry</span>(<span class="params">parent, row, col, default=<span class="string">""</span></span>):</span><br><span class="line">        e = tkinter.ttk.Entry(parent,width=<span class="number">5</span>,validate=<span class="string">"key"</span>,validatecommand=(root.register(<span class="keyword">lambda</span> x: x.isdigit() <span class="keyword">or</span> x == <span class="string">""</span> <span class="keyword">or</span> x.count(<span class="string">"."</span>) == <span class="number">1</span>),<span class="string">"%P"</span>,))</span><br><span class="line">        <span class="comment"># 激活鼠标位置</span></span><br><span class="line">        e.bind(<span class="string">"&lt;FocusIn&gt;"</span>, on_focus_in)</span><br><span class="line">        e.bind(<span class="string">"&lt;FocusOut&gt;"</span>, on_focus_out)</span><br><span class="line">        e.grid(column=col, row=row)</span><br><span class="line">        <span class="keyword">if</span> default:</span><br><span class="line">            e.insert(<span class="number">0</span>, default)</span><br><span class="line">        parent.entries.append(e)  <span class="comment"># 自动登记</span></span><br><span class="line">        <span class="keyword">return</span> e</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 移动前延迟</span></span><br><span class="line">    tkinter.ttk.Label(frame_act, text=<span class="string">"移动前延迟  "</span>).grid(column=<span class="number">0</span>, row=<span class="number">0</span>, sticky=tkinter.W)</span><br><span class="line">    add_entry(frame_act, <span class="number">0</span>, <span class="number">1</span>, default=<span class="string">"50"</span>)</span><br><span class="line">    tkinter.ttk.Label(frame_act, text=<span class="string">"ms"</span>).grid(column=<span class="number">2</span>, row=<span class="number">0</span>, sticky=tkinter.W)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 移动到XY</span></span><br><span class="line">    tkinter.ttk.Label(frame_act, text=<span class="string">"移动到XY  "</span>).grid(column=<span class="number">0</span>, row=<span class="number">1</span>, sticky=tkinter.W)</span><br><span class="line">    add_entry(frame_act, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">    add_entry(frame_act, <span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 移动后延迟</span></span><br><span class="line">    tkinter.ttk.Label(frame_act, text=<span class="string">"移动后延迟  "</span>).grid(column=<span class="number">0</span>, row=<span class="number">2</span>, sticky=tkinter.W)</span><br><span class="line">    add_entry(frame_act, <span class="number">2</span>, <span class="number">1</span>, default=<span class="string">"50"</span>)</span><br><span class="line">    tkinter.ttk.Label(frame_act, text=<span class="string">"ms"</span>).grid(column=<span class="number">2</span>, row=<span class="number">2</span>, sticky=tkinter.W)</span><br><span class="line"></span><br><span class="line">    root.minsize(<span class="built_in">int</span>(w + next_row // <span class="number">8</span> * <span class="number">35</span> * k), <span class="built_in">min</span>(<span class="built_in">int</span>(h + next_row * <span class="number">73</span> * k), <span class="built_in">int</span>(<span class="number">699</span> * k)))</span><br><span class="line">    root.update()</span><br><span class="line">    next_row += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">button0 = tkinter.ttk.Button(mainland, text=<span class="string">"添加动作"</span>, width=<span class="number">10</span>, command=add_act)</span><br><span class="line">button0.grid(column=<span class="number">0</span>, row=<span class="number">0</span>)</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure></div></details><h3 id="添加判断"><a href="#添加判断" class="headerlink" title="添加判断"></a>添加判断</h3><p>这个还没写。</p><h3 id="循环次数"><a href="#循环次数" class="headerlink" title="循环次数"></a>循环次数</h3><details class="tag-plugin colorful folding" child="codeblock"><summary><p>变量实为右侧的 Entry。</p></summary><div class="body"><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tkinter.ttk.Label(mainland, text=<span class="string">"循环次数"</span>).grid(column=<span class="number">0</span>, row=<span class="number">1</span>)</span><br><span class="line">loop = tkinter.ttk.Entry(mainland,width=<span class="number">4</span>,validate=<span class="string">"key"</span>,validatecommand=(root.register(<span class="keyword">lambda</span> x: x.isdigit() <span class="keyword">or</span> x == <span class="string">""</span> <span class="keyword">or</span> x.count(<span class="string">"."</span>) == <span class="number">1</span>),<span class="string">"%P"</span>,))</span><br><span class="line">loop.insert(<span class="number">0</span>, <span class="number">1</span>)</span><br><span class="line">loop.grid(column=<span class="number">1</span>, row=<span class="number">1</span>)</span><br></pre></td></tr></tbody></table></figure></div></details><h3 id="log"><a href="#log" class="headerlink" title="log"></a>log</h3><details class="tag-plugin colorful folding" child="codeblock"><summary><p>勾选后点击开始会输出日志。</p></summary><div class="body"><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">desktop_path = pathlib.Path.home() / <span class="string">"Desktop"</span></span><br><span class="line">log_path = <span class="string">"\\PyMM_{}.log"</span>.<span class="built_in">format</span>(datetime.datetime.now().strftime(<span class="string">'%y%m%d_%H%M%S'</span>))</span><br><span class="line">log = tkinter.BooleanVar()</span><br><span class="line">tkinter.ttk.Checkbutton(mainland, text=<span class="string">"log"</span>, variable=log).grid(column=<span class="number">2</span>, row=<span class="number">1</span>)</span><br><span class="line">log_path = <span class="built_in">str</span>(desktop_path) + log_path</span><br></pre></td></tr></tbody></table></figure></div></details><h3 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h3><details class="tag-plugin colorful folding" child="codeblock"><summary><p>遍历所有的 Frame，获取输入的值，并依次执行。</p></summary><div class="body"><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">run</span>():</span><br><span class="line">    loops = <span class="built_in">int</span>(loop.get())</span><br><span class="line">    data = get_all(root)</span><br><span class="line">    tmp = <span class="string">f"循环次数：<span class="subst">{loops}</span>  启用log：<span class="subst">{log.get()}</span>\n"</span> + <span class="built_in">str</span>(data)</span><br><span class="line">    <span class="built_in">print</span>(tmp)</span><br><span class="line">    <span class="comment"># 安全模式：当鼠标移动到屏幕左上角时自动中止程序</span></span><br><span class="line">    pyautogui.FAILSAFE = <span class="literal">True</span></span><br><span class="line">    <span class="comment"># 所有PyAutoGUI函数之间的默认暂停时间（秒）</span></span><br><span class="line">    pyautogui.PAUSE = <span class="number">0.005</span>  <span class="comment"># 可调整以模拟不同的操作速度</span></span><br><span class="line">    <span class="comment"># 自动中止的安全区域坐标点</span></span><br><span class="line">    pyautogui.FAILSAFE_POINTS = [(<span class="number">0</span>, <span class="number">0</span>), (<span class="number">1</span>, <span class="number">0</span>), (<span class="number">0</span>, <span class="number">1</span>), (<span class="number">1</span>, <span class="number">1</span>)]  <span class="comment"># 默认值</span></span><br><span class="line"></span><br><span class="line">    root.iconify()</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(loops):</span><br><span class="line">        <span class="comment"># n = min(data.keys())</span></span><br><span class="line">        <span class="comment"># act = data[n]</span></span><br><span class="line">        break_flag = <span class="literal">False</span></span><br><span class="line">        <span class="keyword">for</span> act <span class="keyword">in</span> data.values():</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                pyautogui.click(</span><br><span class="line">                    x=act.x_move, <span class="comment"># X坐标</span></span><br><span class="line">                    y=act.y_move, <span class="comment"># Y坐标</span></span><br><span class="line">                    clicks=<span class="number">1</span>,     <span class="comment"># 点击次数</span></span><br><span class="line">                    interval=<span class="number">0.0</span>, <span class="comment"># 多次点击之间的间隔时间</span></span><br><span class="line">                    button=<span class="string">'left'</span>,<span class="comment"># 使用的鼠标按键：'left'、'middle'、'right'</span></span><br><span class="line">                    duration=act.move_before, <span class="comment"># 移动鼠标到点击位置的时间</span></span><br><span class="line">                    tween=pyautogui.linear <span class="comment"># 移动轨迹函数</span></span><br><span class="line">                )</span><br><span class="line">                pyautogui.PAUSE = <span class="built_in">int</span>(act.move_after) / <span class="number">1000</span></span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f"<span class="subst">{now(<span class="string">'%Y-%m-%d %H:%M:%S.%f'</span>)}</span>：循环<span class="subst">{i+<span class="number">1</span>}</span>/<span class="subst">{loops}</span> <span class="subst">{act.name}</span>执行成功"</span>)</span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                root.deiconify()</span><br><span class="line">                root.attributes(<span class="string">"-topmost"</span>, <span class="literal">True</span>)</span><br><span class="line">                messagebox.showerror(<span class="string">f"<span class="subst">{act.name}</span>报错"</span>, <span class="string">f"<span class="subst">{e}</span>"</span>)</span><br><span class="line">                break_flag = <span class="literal">True</span></span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            <span class="keyword">finally</span>:</span><br><span class="line">                <span class="keyword">if</span> log.get():</span><br><span class="line">                    <span class="keyword">with</span> <span class="built_in">open</span>(log_path, mode=<span class="string">"a+"</span>, encoding=<span class="string">'utf8'</span>) <span class="keyword">as</span> f:</span><br><span class="line">                        f.write(<span class="string">f"<span class="subst">{now()}</span>：循环<span class="subst">{i+<span class="number">1</span>}</span>/<span class="subst">{loops}</span> <span class="subst">{act}</span> 完成\n"</span>)</span><br><span class="line">        <span class="keyword">if</span> break_flag:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    root.deiconify()</span><br><span class="line">    root.attributes(<span class="string">"-topmost"</span>, <span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">button2 = tkinter.ttk.Button(mainland, text=<span class="string">"开始"</span>, width=<span class="number">10</span>, command=run)</span><br><span class="line">button2.grid(column=<span class="number">0</span>, row=<span class="number">2</span>)</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure></div></details><h3 id="导出"><a href="#导出" class="headerlink" title="导出"></a>导出</h3><details class="tag-plugin colorful folding" child="codeblock"><summary><p>同开始，但不执行，而是输出文件。</p></summary><div class="body"><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">saveas</span>():</span><br><span class="line">    data = get_all(root)</span><br><span class="line">    <span class="built_in">print</span>(data)</span><br><span class="line">    files = [(<span class="string">"文本文档"</span>, <span class="string">"*.txt"</span>), (<span class="string">"所有文件"</span>, <span class="string">"*.*"</span>)]</span><br><span class="line">    filepath = filedialog.asksaveasfilename(</span><br><span class="line">        title=<span class="string">"导出文件"</span>, filetypes=files, defaultextension=files</span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">if</span> filepath:</span><br><span class="line">        content=<span class="string">""</span></span><br><span class="line">        <span class="keyword">for</span> act <span class="keyword">in</span> data.values():</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                n = <span class="built_in">int</span>(act.no)</span><br><span class="line">                x = <span class="built_in">int</span>(act.x_move)</span><br><span class="line">                y = <span class="built_in">int</span>(act.y_move)</span><br><span class="line">                b = <span class="built_in">int</span>(act.move_before)</span><br><span class="line">                a = <span class="built_in">int</span>(act.move_after)</span><br><span class="line">                s = act.name</span><br><span class="line">                content = content + <span class="string">f"N<span class="subst">{n}</span> X<span class="subst">{x}</span> Y<span class="subst">{y}</span> B<span class="subst">{b}</span> A<span class="subst">{a}</span> #<span class="subst">{s}</span> \n"</span></span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                root.deiconify()</span><br><span class="line">                root.attributes(<span class="string">"-topmost"</span>, <span class="literal">True</span>)</span><br><span class="line">                messagebox.showerror(<span class="string">f"<span class="subst">{act.name}</span>报错"</span>, <span class="string">f"<span class="subst">{e}</span>"</span>)</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(filepath, <span class="string">"w"</span>, encoding=<span class="string">'utf8'</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(content)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f"文件已保存到<span class="subst">{filepath}</span>"</span>)</span><br></pre></td></tr></tbody></table></figure></div></details><h3 id="导入"><a href="#导入" class="headerlink" title="导入"></a>导入</h3><details class="tag-plugin colorful folding" child="codeblock"><summary><p>删除所有动作 Frame，并按序写入。</p></summary><div class="body"><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">load</span>():</span><br><span class="line">    filepath = filedialog.askopenfile(</span><br><span class="line">        title=<span class="string">"导入文件"</span>,</span><br><span class="line">        filetypes=[(<span class="string">"文本文档"</span>, <span class="string">"*.txt"</span>), (<span class="string">"所有文件"</span>, <span class="string">"*.*"</span>)],</span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">if</span> filepath:</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(filepath.name, <span class="string">"r"</span>) <span class="keyword">as</span> f:</span><br><span class="line">            data = f.readlines()</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"导入取消"</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 清空所有动作</span></span><br><span class="line">    <span class="keyword">global</span> next_row</span><br><span class="line">    next_row = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> frame <span class="keyword">in</span> root.winfo_children():</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(frame, tkinter.ttk.LabelFrame):</span><br><span class="line">            <span class="keyword">if</span> frame.cget(<span class="string">"text"</span>).startswith(<span class="string">"动作"</span>):</span><br><span class="line">                frame.destroy()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> data:</span><br><span class="line">        add_act()</span><br><span class="line">        <span class="comment"># 匹配字母+数字</span></span><br><span class="line">        matches = re.findall(<span class="string">r'([A-Z])(\d+)'</span>, i.upper())</span><br><span class="line">        <span class="comment"># 转成字典，数字转成int</span></span><br><span class="line">        tmp = {k: <span class="built_in">int</span>(v) <span class="keyword">for</span> k, v <span class="keyword">in</span> matches}</span><br><span class="line">        <span class="comment"># 最新的Frame</span></span><br><span class="line">        latest_act = root.winfo_children()[-<span class="number">1</span>]</span><br><span class="line">        <span class="built_in">print</span>(tmp,latest_act.winfo_children())</span><br><span class="line">        latest_act.config(text= <span class="string">"动作"</span> + <span class="built_in">str</span>(tmp[<span class="string">"N"</span>]))</span><br><span class="line">        latest_act.winfo_children()[<span class="number">1</span>].delete(<span class="number">0</span>, <span class="string">'end'</span>)</span><br><span class="line">        latest_act.winfo_children()[<span class="number">1</span>].insert(<span class="number">0</span>, tmp[<span class="string">"B"</span>])</span><br><span class="line">        latest_act.winfo_children()[<span class="number">4</span>].insert(<span class="number">0</span>, tmp[<span class="string">"X"</span>])</span><br><span class="line">        latest_act.winfo_children()[<span class="number">5</span>].insert(<span class="number">0</span>, tmp[<span class="string">"Y"</span>])</span><br><span class="line">        latest_act.winfo_children()[<span class="number">7</span>].delete(<span class="number">0</span>, <span class="string">'end'</span>)</span><br><span class="line">        latest_act.winfo_children()[<span class="number">7</span>].insert(<span class="number">0</span>, tmp[<span class="string">"A"</span>])</span><br></pre></td></tr></tbody></table></figure></div></details><h3 id="鼠标位置"><a href="#鼠标位置" class="headerlink" title="鼠标位置"></a>鼠标位置</h3><details class="tag-plugin colorful folding" child="codeblock"><summary><p>鼠标焦点在动作 Frame 输入框时触发，不然会比较卡。</p></summary><div class="body"><figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取全局鼠标位置（支持多显示器）</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_mouse_pos</span>():</span><br><span class="line">    pt = ctypes.wintypes.POINT()</span><br><span class="line">    ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))</span><br><span class="line">    <span class="keyword">return</span> pt.x, pt.y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取全屏截图尺寸（多显示器）</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_screen_bbox</span>():</span><br><span class="line">    user32 = ctypes.windll.user32</span><br><span class="line">    user32.SetProcessDPIAware()</span><br><span class="line">    <span class="keyword">global</span> max_x, max_y</span><br><span class="line">    <span class="comment"># 78/79为虚拟屏总宽高</span></span><br><span class="line">    max_x = user32.GetSystemMetrics(<span class="number">78</span>)</span><br><span class="line">    max_y = user32.GetSystemMetrics(<span class="number">79</span>)</span><br><span class="line">    <span class="keyword">return</span> (<span class="number">0</span>, <span class="number">0</span>, max_x, max_y)</span><br><span class="line"></span><br><span class="line">screen_bbox = get_screen_bbox()</span><br><span class="line"></span><br><span class="line">tkinter.ttk.Label(mouse, text=<span class="string">"X, Y："</span>).grid(column=<span class="number">0</span>, row=<span class="number">0</span>, sticky=tkinter.W)</span><br><span class="line">label_pos = tkinter.ttk.Label(mouse)</span><br><span class="line">label_pos.grid(column=<span class="number">1</span>, row=<span class="number">0</span>, columnspan=<span class="number">2</span>, sticky=tkinter.W)</span><br><span class="line">style = tkinter.ttk.Style()</span><br><span class="line">style.configure(<span class="string">"Color.TLabel"</span>)</span><br><span class="line">tkinter.ttk.Label(mouse, text=<span class="string">"RGB: "</span>).grid(column=<span class="number">0</span>, row=<span class="number">1</span>, sticky=tkinter.W)</span><br><span class="line">label_color = tkinter.ttk.Label(mouse, text=<span class="string">"    "</span>, relief=<span class="string">"solid"</span>)</span><br><span class="line">label_color.grid(column=<span class="number">1</span>, row=<span class="number">1</span>, sticky=tkinter.W)</span><br><span class="line">label_rgb = tkinter.ttk.Label(mouse)</span><br><span class="line">label_rgb.grid(column=<span class="number">2</span>, row=<span class="number">1</span>, sticky=tkinter.W)</span><br></pre></td></tr></tbody></table></figure></div></details><h2 id="宏的语法"><a href="#宏的语法" class="headerlink" title="宏的语法"></a>宏的语法</h2><p>如下例，中间用字母隔开，注意所有数字均为整型，字母顺序无所谓。</p><div class="tag-plugin copy"><input class="copy-area" id="copy_1" value="N1 X1 Y1 B50 A50 #demo"><button class="copy-btn" onclick="util.copy(&quot;copy_1&quot;,&quot;复制成功，转载请注明来源！&quot;)"><svg class="icon copy-btn" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M5.75 1a.75.75 0 00-.75.75v3c0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75v-3a.75.75 0 00-.75-.75h-4.5zm.75 3V2.5h3V4h-3zm-2.874-.467a.75.75 0 00-.752-1.298A1.75 1.75 0 002 3.75v9.5c0 .966.784 1.75 1.75 1.75h8.5A1.75 1.75 0 0014 13.25v-9.5a1.75 1.75 0 00-.874-1.515.75.75 0 10-.752 1.298.25.25 0 01.126.217v9.5a.25.25 0 01-.25.25h-8.5a.25.25 0 01-.25-.25v-9.5a.25.25 0 01.126-.217z"></path></svg></button></div><ul><li><strong>N</strong>：动作序号（<em>No</em>），执行时会按这个顺序。</li><li><strong>X</strong>：鼠标 X 位置，以屏幕 1 左上角为原点 <code>0</code>。</li><li><strong>Y</strong>：鼠标 Y 位置，以屏幕 1 左上角为原点 <code>0</code>。</li><li><strong>B</strong>：移动前延迟（<em>before</em>），单位 ms。</li><li><strong>A</strong>：移动后延迟（<em>after</em>），单位 ms。</li><li><strong>#</strong>：注释，语法分析时会忽略<code>#</code>至空格（换行符）的内容。</li></ul><h2 id="后续更新"><a href="#后续更新" class="headerlink" title="后续更新"></a>后续更新</h2><ol><li>添加判断功能，比如鼠标目标位置颜色。</li><li>动作 / 判断位置改为始终置顶且可拖动的窗体，而不是手动输入坐标。</li><li>动作加上鼠标右键、中键和键盘等操作。</li><li>动作 / 判断顺序可调整（这个或许需要整体重构，会另外更新）。</li></ol><h2 id="成品获取"><a href="#成品获取" class="headerlink" title="成品获取"></a>成品获取</h2><p>下载请见 <a class="tag-plugin colorful button" color="theme" size="xs" title="Malvern's File Server" target="_blank" rel="noopener" href="https://chfs.20508888.xyz/"><img src="https://api.iconify.design/solar:link-circle-bold.svg"><span>Malvern's File Server</span></a>。</p><script type="text&#x2F;javascript" src="https://unpkg.com/kity@2.0.4/dist/kity.min.js"></script><script type="text&#x2F;javascript" src="https://unpkg.com/kityminder-core@1.4.50/dist/kityminder.core.min.js"></script><script defer type="text&#x2F;javascript" src="https://unpkg.com/hexo-simple-mindmap@0.8.0/dist/mindmap.min.js"></script><link rel="stylesheet" type="text&#x2F;css" href="https://unpkg.com/hexo-simple-mindmap@0.8.0/dist/mindmap.min.css"></article><div class="article-footer"><section id="license"><div class="header"><span>许可协议</span></div><div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处，谢谢！</p></div></section><section id="share"><div class="header"><span>分享文章</span></div><div class="body"><div class="link"><input class="copy-area" readonly id="copy-link" value="https://20508888.xyz/posts/60829/"></div><div class="social-wrap dis-select"><a class="social share-item wechat" onclick="util.toggle(&quot;qrcode-wechat&quot;)"><img src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/b32ef3da1162a.svg"></a><a class="social share-item weibo" target="_blank" rel="external nofollow noopener noreferrer" href="https://service.weibo.com/share/share.php?url=https://20508888.xyz/posts/60829/&title=Python 鼠标宏（按键精灵） - Malvern's Blog&summary=以按键精灵为灵感，写了一个带 GUI 的鼠标宏。第三方库用到了 Pillow 和 pyautogui，分别提供了获取鼠标位置 RGB 颜色和模拟键鼠操作功能。GUI 当前通过 Python 内置的 tkinter 库实现，后续可能会用..."><img src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/80c07e4dbb303.svg"></a><a class="social share-item email" href="mailto:?subject=Python 鼠标宏（按键精灵） - Malvern's Blog&amp;body=https://20508888.xyz/posts/60829/"><img src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/a1b00e20f425d.svg"></a><a class="social share-item link" onclick="util.copy(&quot;copy-link&quot;, &quot;复制成功&quot;)"><img src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/8411ed322ced6.svg"></a></div><div class="qrcode" id="qrcode-wechat" style="opacity:0;height:0"><img src="https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=https://20508888.xyz/posts/60829/"></div></div></section></div><div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/posts/17775/">音波式皮带张力计（Web 版）</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/posts/64672/">Excel 汇率速查（可联网更新）</a></div></section></div><div class="related-wrap md-text" id="comments"><section class="header cmt-title cap theme"><p>评论区</p></section><section class="body cmt-body twikoo"><div id="twikoo_container"><svg class="loading" style="vertical-align:middle;fill:currentColor;overflow:hidden" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2709"><path d="M832 512c0-176-144-320-320-320V128c211.2 0 384 172.8 384 384h-64zM192 512c0 176 144 320 320 320v64C300.8 896 128 723.2 128 512h64z" p-id="2710"></path></svg></div></section></div><footer class="page-footer footnote"><hr><div class="text"><div align="center"><a title="里面或许能发现一些奇妙的东西哟" href="https://20508888.xyz/sitemap.txt" target="_blank">网站地图</a> | <a title="我的Uptimeflare监控及状态页面" href="https://uf.20508888.xyz/" target="_blank">状态监测</a> | <a title="通过你的麦克风在线测试皮带张力" href="https://atm.20508888.xyz/" target="_blank">皮带张力测试</a> | <a title="Malvern's Blog文件和图片的服务器。" href="http://chfs.20508888.xyz" target="_blank">File Server</a> | <a title="博客人的朋友圈，博客收录与文章RSS聚合网站。" href="https://www.boyouquan.com/home" target="_blank">博友圈</a> | <a title="博客说旨在全收录优质的中文个人博客，提供博客收录、文章聚合展示等功能，欢迎来这里发现有趣的博友以及他们的最新动态！" href="https://blog.ns.ci/home" target="_blank">博客说</a></div><div align="center">Copyright 2022-2026 | Powered by <a href="https://hexo.io/zh-cn/" target="_blank">Hexo 7.3.0</a> & <a href="https://xaoxuu.com/wiki/stellar/" target="_blank">Stellar 1.33.1</a></div><div align="center"><span id="busuanzi_container_site_pv">总访问量<span id="busuanzi_value_site_pv"></span>次 | <span id="sitetime"></span></span></div><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script language="javascript">function siteTime(){window.setTimeout("siteTime()",1e3);var e=36e5,t=24*e,o=new Date,i=o.getFullYear(),a=o.getMonth()+1,n=o.getDate(),r=o.getHours(),l=o.getMinutes(),s=o.getSeconds(),M=(Date.UTC(2022,11,28,20,0,0),Date.UTC(i,a,n,r,l,s)),T=Date.UTC(2034,2,25,0,0,0)-M,g=Math.floor(T/31536e6),m=Math.floor(T/t-365*g),f=Math.floor((T-(365*g+m)*t)/e),h=Math.floor((T-(365*g+m)*t-f*e)/6e4),u=Math.floor((T-(365*g+m)*t-f*e-6e4*h)/1e3);document.getElementById("sitetime").innerHTML="本网址将在"+g+"年"+m+"天"+f+"小时"+h+"分钟"+u+"秒后过期"}siteTime()</script></div></footer><div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right"><div class="widgets"><widget class="widget-wrapper toc" id="data-toc" collapse="auto"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E5%8A%9F%E8%83%BD"><span class="toc-number">1.</span> <span class="toc-text">主要功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">代码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E7%95%8C%E9%9D%A2"><span class="toc-number">2.1.</span> <span class="toc-text">主界面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E5%8A%A8%E4%BD%9C"><span class="toc-number">2.2.</span> <span class="toc-text">添加动作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E5%88%A4%E6%96%AD"><span class="toc-number">2.3.</span> <span class="toc-text">添加判断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BE%AA%E7%8E%AF%E6%AC%A1%E6%95%B0"><span class="toc-number">2.4.</span> <span class="toc-text">循环次数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#log"><span class="toc-number">2.5.</span> <span class="toc-text">log</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B"><span class="toc-number">2.6.</span> <span class="toc-text">开始</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BC%E5%87%BA"><span class="toc-number">2.7.</span> <span class="toc-text">导出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BC%E5%85%A5"><span class="toc-number">2.8.</span> <span class="toc-text">导入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BC%A0%E6%A0%87%E4%BD%8D%E7%BD%AE"><span class="toc-number">2.9.</span> <span class="toc-text">鼠标位置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8F%E7%9A%84%E8%AF%AD%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">宏的语法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E7%BB%AD%E6%9B%B4%E6%96%B0"><span class="toc-number">4.</span> <span class="toc-text">后续更新</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%90%E5%93%81%E8%8E%B7%E5%8F%96"><span class="toc-number">5.</span> <span class="toc-text">成品获取</span></a></li></ol></div><div class="widget-footer"><a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/><path d="M7 3.338A9.95 9.95 0 0 1 12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12c0-1.821.487-3.53 1.338-5"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M8 10.5h8M8 14h5.5M17 3.338A9.95 9.95 0 0 0 12 2C6.477 2 2 6.477 2 12c0 1.6.376 3.112 1.043 4.453c.178.356.237.763.134 1.148l-.595 2.226a1.3 1.3 0 0 0 1.591 1.592l2.226-.596a1.63 1.63 0 0 1 1.149.133A9.96 9.96 0 0 0 12 22c5.523 0 10-4.477 10-10c0-1.821-.487-3.53-1.338-5"/></svg><span>参与讨论</span></a></div></widget></div></aside><div class="float-panel"><button type="button" style="display:none" class="laptop-only rightbar-toggle mobile" onclick="sidebar.rightbar()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></button> <button type="button" style="display:none" class="mobile-only leftbar-toggle mobile" onclick="sidebar.leftbar()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg></button></div></div><div class="scripts"><script type="text/javascript">window.canonical = {"originalHost":null,"officialHosts":["localhost"],"encoded":""};
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+    tag_plugins: {
+      chat: Object.assign({"api":"https://siteinfo.listentothewind.cn/api/v1"}),
+    }
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"skip_search":null,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+    loading: `https://api.iconify.design/eos-icons:three-dots-loading.svg?color=%231cd0fd`,
+  };
+  const deps = {
+    jquery: `https://gcore.jsdelivr.net/npm/jquery@3.7/dist/jquery.min.js`,
+    marked: `https://gcore.jsdelivr.net/npm/marked@13.0/lib/marked.umd.min.js`,
+    lazyload: `/%5Bobject%20Object%5D`
+  }</script><script type="text/javascript">function RunItem() {
+    this.list = []; // 存放回调函数
+    this.start = () => {
+      for (var i = 0; i < this.list.length; i++) {
+        this.list[i].run();
+      }
+    };
+    this.push = (fn, name, setRequestAnimationFrame = true) => {
+      let myfn = fn
+      if (setRequestAnimationFrame) {
+        myfn = () => {
+          utils.requestAnimationFrame(fn)
+        }
+      }
+      var f = new Item(myfn, name);
+      this.list.push(f);
+    };
+    this.remove = (name) => {
+      for (let index = 0; index < this.list.length; index++) {
+        const e = this.list[index];
+        if (e.name == name) {
+          this.list.splice(index, 1);
+        }
+      }
+    }
+    // 构造一个可以run的对象
+    function Item(fn, name) {
+      // 函数名称
+      this.name = name || fn.name;
+      // run方法
+      this.run = () => {
+        try {
+          fn()
+        } catch (error) {
+          console.log(error);
+        }
+      };
+    }
+  }
+
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')) {
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function () {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      const maxRetry = 3;
+      let retryCount = 0;
+
+      return new Promise((resolve, reject) => {
+        const load = () => {
+          utils.onLoading?.(el);
+
+          let timedOut = false;
+          const timeout = setTimeout(() => {
+            timedOut = true;
+            console.warn('[request] 超时:', url);
+
+            if (++retryCount >= maxRetry) {
+              utils.onLoadFailure?.(el);
+              onFailure?.();
+              reject('请求超时');
+            } else {
+              setTimeout(load, 1000);
+            }
+          }, 5000);
+
+          fetch(url).then(resp => {
+            if (timedOut) return;
+            clearTimeout(timeout);
+
+            if (!resp.ok) throw new Error('响应失败');
+            return resp;
+          }).then(data => {
+            if (timedOut) return;
+            utils.onLoadSuccess?.(el);
+            callback(data);
+            resolve(data);
+          }).catch(err => {
+            clearTimeout(timeout);
+            console.warn('[request] 错误:', err);
+
+            if (++retryCount >= maxRetry) {
+              utils.onLoadFailure?.(el);
+              onFailure?.();
+              reject(err);
+            } else {
+              setTimeout(load, 1000);
+            }
+          });
+        };
+
+        load();
+      });
+    },
+    requestWithoutLoading: (url, options = {}, maxRetry = 2, timeout = 5000) => {
+      return new Promise((resolve, reject) => {
+        let retryCount = 0;
+
+        const tryRequest = () => {
+          let timedOut = false;
+          const timer = setTimeout(() => {
+            timedOut = true;
+            if (++retryCount > maxRetry) reject('timeout');
+            else tryRequest();
+          }, timeout);
+
+          fetch(url, options)
+            .then(resp => {
+              clearTimeout(timer);
+              if (!resp.ok) throw new Error('bad response');
+              resolve(resp);
+            })
+            .catch(err => {
+              clearTimeout(timer);
+              if (++retryCount > maxRetry) reject(err);
+              else setTimeout(tryRequest, 500);
+            });
+        };
+
+        tryRequest();
+      });
+    },
+    /********************** requestAnimationFrame ********************************/
+    // 1、requestAnimationFrame 会把每一帧中的所有 DOM 操作集中起来，在一次重绘或回流中就完成，并且重绘或回流的时间间隔紧紧跟随浏览器的刷新频率，一般来说，这个频率为每秒60帧。
+    // 2、在隐藏或不可见的元素中，requestAnimationFrame 将不会进行重绘或回流，这当然就意味着更少的的 cpu，gpu 和内存使用量。
+    requestAnimationFrame: (fn) => {
+      if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
+      }
+      window.requestAnimationFrame(fn)
+    },
+    dark: {},
+  };
+
+  // utils.dark.mode 当前模式 dark or light
+  // utils.dark.toggle() 暗黑模式触发器
+  // utils.dark.push(callBack[,"callBackName"]) 传入触发器回调函数
+  utils.dark.method = {
+    toggle: new RunItem(),
+  };
+  utils.dark = Object.assign(utils.dark, {
+    push: utils.dark.method.toggle.push,
+  });</script><script>const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }</script><script type="text/javascript">(() => {
+    const tagSwitchers = document.querySelectorAll('.tag-subtree.parent-tag > a > .tag-switcher-wrapper')
+    for (const tagSwitcher of tagSwitchers) {
+      tagSwitcher.addEventListener('click', (e) => {
+        const parent = e.target.closest('.tag-subtree.parent-tag')
+        parent.classList.toggle('expanded')
+        e.preventDefault()
+      })
+    }
+
+    // Get active tag from query string, then activate it.
+    const urlParams = new URLSearchParams(window.location.search)
+    const activeTag = urlParams.get('tag')
+    if (activeTag) {
+      let tag = document.querySelector(`.tag-subtree[data-tag="${activeTag}"]`)
+      if (tag) {
+        tag.querySelector('a').classList.add('active')
+        
+        while (tag) {
+          tag.classList.add('expanded')
+          tag = tag.parentElement.closest('.tag-subtree.parent-tag')
+        }
+      }
+    }
+  })()</script><script async src="https://gcore.jsdelivr.net/npm/vanilla-lazyload@19.1/dist/lazyload.min.js"></script><script>// https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+    callback_loaded: (el) => {
+      el.classList.add('loaded');
+      const wrapper = el.closest('.lazy-box');
+      const icon = wrapper?.querySelector('.lazy-icon');
+      if (icon) icon.remove();
+    }
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+
+  window.wrapLazyloadImages = (container) => {
+    if (typeof container === 'string') {
+      container = document.querySelector(container);
+    }
+    if (!container) return;
+    
+    const images = container.querySelectorAll('img');
+    images.forEach((img) => {
+      if (img.classList.contains('lazy')) return;
+
+      const src = img.getAttribute('src');
+      if (!src) return;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'lazy-box';
+
+      const newImg = img.cloneNode();
+      newImg.removeAttribute('src');
+      newImg.setAttribute('data-src', src);
+      newImg.classList.add('lazy');
+
+      const icon = document.createElement('div');
+      icon.className = 'lazy-icon';
+      if (def.loading) {
+        icon.style.backgroundImage = `url("${def.loading}")`;
+      }
+
+      wrapper.appendChild(newImg);
+      wrapper.appendChild(icon);
+
+      img.replaceWith(wrapper);
+    });
+
+    // 通知 LazyLoad 更新
+    if (window.lazyLoadInstance?.update) {
+      window.lazyLoadInstance.update();
+    }
+  }</script><script src="/js/main.js?v=1.33.1" defer></script><script type="text/javascript">const applyTheme = (theme) => {
+    if (theme === 'auto') {
+      document.documentElement.removeAttribute('data-theme')
+    } else {
+      document.documentElement.setAttribute('data-theme', theme)
+    }
+
+    // applyThemeToGiscus(theme)
+  }
+
+  // FIXME: 这会导致无法使用 preferred_color_scheme 以外的主题
+  const applyThemeToGiscus = (theme) => {
+    // theme = theme === 'auto' ? 'preferred_color_scheme' : theme
+    const cmt = document.getElementById('giscus')
+    if (cmt) {
+      // This works before giscus load.
+      cmt.setAttribute('data-theme', theme)
+    }
+
+    const iframe = document.querySelector('#comments > section.giscus > iframe')
+    if (iframe) {
+      // This works after giscus loaded.
+      const src = iframe.src
+      const newSrc = src.replace(/theme=[\w]+/, `theme=${theme}`)
+      iframe.src = newSrc
+    }
+  }
+
+  const switchTheme = () => {
+    // light -> dark -> auto -> light -> ...
+    const currentTheme = document.documentElement.getAttribute('data-theme')
+    let newTheme;
+    switch (currentTheme) {
+      case 'light':
+        newTheme = 'dark'
+        break
+      case 'dark':
+        newTheme = 'auto'
+        break
+      default:
+        newTheme = 'light'
+    }
+    applyTheme(newTheme)
+    window.localStorage.setItem('Stellar.theme', newTheme)
+    utils.dark.mode = newTheme === 'auto' ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : newTheme;
+    utils.dark.method.toggle.start();
+
+    const messages = {
+      light: `切换到浅色模式`,
+      dark: `切换到深色模式`,
+      auto: `切换到跟随系统配色`,
+    }
+    hud?.toast?.(messages[newTheme])
+  }
+
+  (() => {
+    // Apply user's preferred theme, if any.
+    const theme = window.localStorage.getItem('Stellar.theme')
+    if (theme !== null) {
+      applyTheme(theme)
+    } else {
+      utils.dark.mode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    utils.dark.method.toggle.start();
+  })()</script><script type="module">const el = document.getElementById('twikoo_container');
+  util.viewportLazyload(el, load_twikoo, true);
+
+  function load_twikoo() {
+    if (!el) return;
+    utils.js('https://gcore.jsdelivr.net/npm/twikoo@1.6.8/dist/twikoo.all.min.js', {defer: true}).then(function () {
+      const path = el.getAttribute('comment_id') ?? decodeURI(window.location.pathname);
+      twikoo.init(Object.assign({"js":"https://gcore.jsdelivr.net/npm/twikoo@1.6.8/dist/twikoo.all.min.js","envId":"https://twikoo.20508888.xyz"}, {
+        el: '#twikoo_container',
+        path: path,
+      }));
+    });
+  }</script><script defer>window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"rating":{"js":"/js/services/rating.js","api":"https://star-vote.xaox.cc/api/rating"},"vote":{"js":"/js/services/vote.js","api":"https://star-vote.xaox.cc/api/vote"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"friends_and_posts":{"js":"/js/services/friends_and_posts.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"},"voice":{"js":"/js/plugins/voice.js"},"video":{"js":"/js/plugins/video.js"},"download-file":{"js":"/js/plugins/download-file.js"},"twikoo":{"js":"/js/services/twikoo_latest_comment.js"},"waline":{"js":"/js/services/waline_latest_comment.js"},"artalk":{"js":"/js/services/artalk_latest_comment.js"},"giscus":{"js":"/js/services/giscus_latest_comment.js"},"contributors":{"edit_this_page":{"_posts/":null,"wiki/stellar/":"https://github.com/xaoxuu/hexo-theme-stellar-docs/blob/main/"},"js":"/js/services/contributors.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else if (id == 'voice') {
+        ctx.voiceAudios = document.querySelectorAll('.voice>audio');
+        if (ctx.voiceAudios?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            createVoiceDom(ctx.voiceAudios);
+          });
+        }
+      } else if (id == 'video') {
+        ctx.videos = document.querySelectorAll('.video>video');
+        if (ctx.videos?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            videoEvents(ctx.videos);
+          });
+        }
+      } else if (id == 'download-file') {
+        ctx.files = document.querySelectorAll('.file');
+        if (ctx.files?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            downloadFileEvent(ctx.files);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+
+    // chat iphone time
+    let phoneTimes = document.querySelectorAll('.chat .status-bar .time');
+
+    if (phoneTimes.length > 0) {
+      NowTime();
+      var date = new Date();
+      var sec = date.getSeconds();
+      var firstAdjustInterval = setInterval(firstAdjustTime, 1000 * (60 - sec));
+    }
+
+    function firstAdjustTime() {
+      NowTime();
+      clearInterval(firstAdjustInterval);
+      setInterval(NowTime, 1000 * 60);
+    }
+
+    function NowTime() {
+      for (let i = 0; i < phoneTimes.length; ++i) {
+        var timeSpan = phoneTimes[i];
+        var date = new Date();
+        var hour = date.getHours();
+        var min = date.getMinutes();
+        timeSpan.innerHTML = check(hour) + ":" + check(min);
+      }
+    };
+
+    function check(val) {
+      if (val < 10) {
+        return ("0" + val);
+      }
+      return (val);
+    }
+
+    // chat quote
+    const chat_quote_obverser = new IntersectionObserver((entries, observer) => {
+      entries.filter((entry) => { return entry.isIntersecting }).sort((a, b) => a.intersectionRect.y !== b.intersectionRect.y ? a.intersectionRect.y - b.intersectionRect.y : a.intersectionRect.x - b.intersectionRect.x).forEach((entry, index) => {
+          observer.unobserve(entry.target);
+          setTimeout(() => {
+            entry.target.classList.add('quote-blink');
+            setTimeout(() => {
+              entry.target.classList.remove('quote-blink');
+            }, 1000);
+          }, Math.max(100, 16) * (index + 1));
+        });
+    });
+
+    var chatQuotes = document.querySelectorAll(".chat .talk .quote");
+    chatQuotes.forEach((quote) => {
+      quote.addEventListener('click', function () {
+        var chatCellDom = document.getElementById("quote-" + quote.getAttribute("quotedCellTag"));
+        if (chatCellDom) {
+          var chatDiv = chatCellDom.parentElement;
+          var mid = chatDiv.clientHeight / 2;
+          var offsetTop = chatCellDom.offsetTop;
+          if (offsetTop > mid - chatCellDom.clientHeight / 2) {
+            chatDiv.scrollTo({
+              top: chatCellDom.offsetTop - mid + chatCellDom.clientHeight / 2,
+              behavior: "smooth"
+            });
+          } else {
+            chatDiv.scrollTo({
+              top: 0,
+              behavior: "smooth"
+            });
+          }
+          chat_quote_obverser.observe(chatCellDom);
+        }
+      });
+    });
+  });</script><script>window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });</script><script>window.FPConfig={delay:0,ignoreKeywords:[],maxRPS:5,hoverDelay:25}</script><script defer src="https://gcore.jsdelivr.net/npm/flying-pages@2/flying-pages.min.js"></script><script>ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://gcore.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css`,
+    js: `https://gcore.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js`
+  };
+  var selector = '[data-fancybox]:not(.error), .with-fancybox .atk-content img:not([atk-emoticon])';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const memos = document.getElementsByClassName('ds-memos');
+    if (memos != undefined && memos.length > 0) {
+      needFancybox = true;
+    }
+    const fancybox = document.getElementsByClassName('with-fancybox');
+    if (fancybox != undefined && fancybox.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }</script><script>window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });</script><script>document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });</script></div></body></html>
